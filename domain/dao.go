@@ -6,7 +6,6 @@ import (
 
 	"github.com/parsaakbari1209/ChatApp-messages-api/utils"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func Create(msg *Message) (*Message, *utils.RestErr) {
@@ -14,6 +13,7 @@ func Create(msg *Message) (*Message, *utils.RestErr) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	res, err := msgC.InsertOne(ctx, bson.M{
+		"_id":         msg.ID,
 		"seen":        msg.Seen,
 		"sender":      msg.Sender,
 		"reciver":     msg.Reciver,
@@ -23,9 +23,22 @@ func Create(msg *Message) (*Message, *utils.RestErr) {
 	if err != nil {
 		return nil, utils.InternalServerErr("cant' operate create functionality.")
 	}
-	if res.InsertedID == nil {
+	if res.InsertedID != msg.ID {
 		return nil, utils.InternalServerErr("can't operate create functionality.")
 	}
-	msg.ID = res.InsertedID.(primitive.ObjectID)
 	return msg, nil
+}
+
+func Delete(id string) *utils.RestErr {
+	msgC := db.Collection("messages")
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	res, err := msgC.DeleteOne(ctx, bson.M{"_id": id})
+	if err != nil {
+		return utils.InternalServerErr("can't operate delete functionality.")
+	}
+	if res.DeletedCount == 0 {
+		return utils.NotFound("message not found.")
+	}
+	return nil
 }
