@@ -59,11 +59,11 @@ func TestUpdate(t *testing.T) {
 		t.Error(restErr.Message)
 	}
 	// Try to update a message that doesn't exist.
-	if restErr := Update("0", "Hi there."); restErr != nil {
+	if restErr := Update("0", "Hi there."); restErr == nil {
 		t.Error(restErr.Message)
 	}
 	// Try to update a message with the same content.
-	if restErr := Update("1", "Hi there."); restErr != nil {
+	if restErr := Update("1", "Hi there."); restErr == nil {
 		t.Error(restErr.Message)
 	}
 }
