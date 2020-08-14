@@ -30,7 +30,7 @@ func Create(msg *Message) (*Message, *utils.RestErr) {
 	return msg, nil
 }
 
-func RetriveFourty(reciver string, skipCof int64, sender *string) (*[]Message, *utils.RestErr) {
+func RetriveFourty(reciver string, skipCof int64, sender *string) ([]Message, *utils.RestErr) {
 	msgC := db.Collection("messages")
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
@@ -45,8 +45,16 @@ func RetriveFourty(reciver string, skipCof int64, sender *string) (*[]Message, *
 	}
 	if sender != nil {
 		filter = bson.M{
-			"reciver": reciver,
-			"sender":  &sender,
+			"$or": []interface{}{
+				bson.M{
+					"reciver": reciver,
+					"sender":  *sender,
+				},
+				bson.M{
+					"reciver": *sender,
+					"sender":  reciver,
+				},
+			},
 		}
 	}
 	// Retrive docs.
@@ -62,7 +70,7 @@ func RetriveFourty(reciver string, skipCof int64, sender *string) (*[]Message, *
 		return nil, utils.InternalServerErr(err.Error())
 	}
 	// Retrun messages and no err.
-	return &messages, nil
+	return messages, nil
 }
 
 func Update(id, message string) *utils.RestErr {
