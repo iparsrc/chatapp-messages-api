@@ -60,10 +60,25 @@ func TestUpdate(t *testing.T) {
 	}
 	// Try to update a message that doesn't exist.
 	if restErr := Update("0", "Hi there."); restErr == nil {
-		t.Error(restErr.Message)
+		t.Error("Updating a message that doesn't exist, must not give a nil err.")
 	}
 	// Try to update a message with the same content.
 	if restErr := Update("1", "Hi there."); restErr == nil {
+		t.Error("Updating a message that is already up-to-date, must not give a nil err.")
+	}
+}
+
+func TestMakeSeen(t *testing.T) {
+	// Try to make an unseen message to seen.
+	if restErr := MakeSeen("1"); restErr != nil {
 		t.Error(restErr.Message)
+	}
+	// Try to make a message seen that doesn't exist.
+	if restErr := MakeSeen("0"); restErr == nil {
+		t.Error("Making a message seen that is doesn't exist, must not give a nil err.")
+	}
+	// Try to make a message that is already seen.
+	if restErr := MakeSeen("1"); restErr == nil {
+		t.Error("Making a message seen that is already seen, must not give a nil err.")
 	}
 }
