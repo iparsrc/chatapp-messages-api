@@ -30,7 +30,7 @@ func Create(msg *Message) (*Message, *utils.RestErr) {
 	return msg, nil
 }
 
-func RetriveTwnety(reciver string, skipCof int64, sender *string) (*[]Message, *utils.RestErr) {
+func RetriveFourty(reciver string, skipCof int64, sender *string) (*[]Message, *utils.RestErr) {
 	msgC := db.Collection("messages")
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
@@ -65,6 +65,28 @@ func RetriveTwnety(reciver string, skipCof int64, sender *string) (*[]Message, *
 	return &messages, nil
 }
 
+func Update(id, message string) *utils.RestErr {
+	msgC := db.Collection("messages")
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	update := bson.M{
+		"$set": bson.M{
+			"message": message,
+		},
+	}
+	res, err := msgC.UpdateOne(ctx, bson.M{"_id": id}, update)
+	if err != nil {
+		return utils.InternalServerErr("can't operate update functionality.")
+	}
+	if res.MatchedCount == 0 {
+		return utils.NotFound("message not found.")
+	}
+	if res.ModifiedCount == 0 {
+		return utils.BadRequest("message is already up-to-date.")
+	}
+	return nil
+}
+
 func Delete(id string) *utils.RestErr {
 	msgC := db.Collection("messages")
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
@@ -75,6 +97,28 @@ func Delete(id string) *utils.RestErr {
 	}
 	if res.DeletedCount == 0 {
 		return utils.NotFound("message not found.")
+	}
+	return nil
+}
+
+func MakeSeen(id string) *utils.RestErr {
+	msgC := db.Collection("messages")
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	update := bson.M{
+		"$set": bson.M{
+			"seen": true,
+		},
+	}
+	res, err := msgC.UpdateOne(ctx, bson.M{"_id": id}, update)
+	if err != nil {
+		return utils.InternalServerErr("can't operate update functionality.")
+	}
+	if res.MatchedCount == 0 {
+		return utils.NotFound("message not found.")
+	}
+	if res.ModifiedCount == 0 {
+		return utils.BadRequest("message is already seen.")
 	}
 	return nil
 }
