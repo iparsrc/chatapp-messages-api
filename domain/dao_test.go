@@ -10,7 +10,7 @@ const (
 	uri = "mongodb://localhost:27017"
 )
 
-func TestCreate(t *testing.T) {
+func TestCreate(t *testing.T) { // Complete.
 	if db == nil {
 		ConnectDB(uri)
 	}
@@ -24,6 +24,20 @@ func TestCreate(t *testing.T) {
 			fmt.Println("    ", *msg)
 		}
 
+	}
+	// Try to create a message with an id that already exist.
+	msg := Message{
+		ID:      "1",
+		Sender:  "A",
+		Reciver: "B",
+		Message: "Hi there, you are doin fine.",
+	}
+	res, restErr := Create(&msg)
+	if restErr == nil {
+		t.Error("Creating a message with an id that exists, must not give a nil err.")
+	}
+	if res != nil {
+		t.Error("Creating a message with an id that exists, must return nil as message.")
 	}
 }
 
@@ -51,7 +65,7 @@ func TestRetrive(t *testing.T) {
 	}
 }
 
-func TestUpdate(t *testing.T) {
+func TestUpdate(t *testing.T) { // Complete.
 	if db == nil {
 		ConnectDB(uri)
 	}
@@ -69,7 +83,7 @@ func TestUpdate(t *testing.T) {
 	}
 }
 
-func TestMakeSeen(t *testing.T) {
+func TestMakeSeen(t *testing.T) { // Complete.
 	// Try to make an unseen message to seen.
 	if restErr := MakeSeen("1"); restErr != nil {
 		t.Error(restErr.Message)
@@ -84,7 +98,7 @@ func TestMakeSeen(t *testing.T) {
 	}
 }
 
-func TestDelete(t *testing.T) {
+func TestDelete(t *testing.T) { // Complete.
 	// Try to delete all messages that are created by getTestMessages func.
 	for i := 1; i <= 44; i++ {
 		id := strconv.Itoa(i)
