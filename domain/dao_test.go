@@ -51,6 +51,9 @@ func TestRetrive(t *testing.T) {
 }
 
 func TestUpdate(t *testing.T) {
+	if db == nil {
+		ConnectDB(uri)
+	}
 	// Try to update an existing message.
 	if restErr := Update("1", "Hello how are you B?"); restErr != nil {
 		t.Error(restErr.Message)
