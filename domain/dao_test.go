@@ -2,6 +2,7 @@ package domain
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 )
 
@@ -80,5 +81,19 @@ func TestMakeSeen(t *testing.T) {
 	// Try to make a message that is already seen.
 	if restErr := MakeSeen("1"); restErr == nil {
 		t.Error("Making a message seen that is already seen, must not give a nil err.")
+	}
+}
+
+func TestDelete(t *testing.T) {
+	// Try to delete all messages that are created by getTestMessages func.
+	for i := 1; i <= 44; i++ {
+		id := strconv.Itoa(i)
+		if restErr := Delete(id); restErr != nil {
+			t.Error(restErr.Message)
+		}
+	}
+	// Try to delete a message that doesn't exist.
+	if restErr := Delete("0"); restErr == nil {
+		t.Error("Deleting a message that doesn't exist, must not give a nil err.")
 	}
 }
